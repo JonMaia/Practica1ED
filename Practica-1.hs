@@ -218,6 +218,7 @@ promedio xs = div (sumatoria xs) (longitud xs)
 
 minimums :: Ord a => [a] -> a
 --Dada una lista devuelve el mínimo
+--Parcial en lista vacía
 minimums [x]    = x
 minimums (x:xs) = if (x < minimums xs) then x else minimums xs
 
@@ -264,7 +265,115 @@ dropN 0 xs     = xs
 dropN n (x:xs) = dropN (n-1) xs
 
 splitN :: Int -> [a] -> ([a], [a])
---Dados un número n y una lista xs, devuelve un par donde la primera componente es la lista
---que resulta de aplicar takeN a xs, y la segunda componente el resultado de aplicar
---dropN a xs. ¿Conviene utilizar recursión?
+{-Dados un número n y una lista xs, devuelve un par donde la primera componente es la lista
+que resulta de aplicar takeN a xs, y la segunda componente el resultado de aplicar
+dropN a xs. ¿Conviene utilizar recursión?-}
 splitN n xs = (takeN n xs, dropN n xs)
+
+-----------------------------------------------------------------------------------------
+
+--Anexo con ejercicios adicionales
+--Ejercicios adicionales para seguir practicando. Defina las siguientes funciones:
+
+maximums :: Ord a => [a] -> a
+--Dada una lista devuelve el maximo.
+--Parcial en lista vacía
+maximums [x]    = x 
+maximums (x:xs) = if (x > maximums xs) then x else maximums xs
+
+
+splitMin :: Ord a => [a] -> (a, [a])
+--Devuelve el mínimo y la lista sin él.
+splitMin xs = (minimums xs, filtrarElemento (minimums xs) xs)
+
+
+ordenar :: Ord a => [a] -> [a]
+--Dada cualquier lista la devuelve ordenada de menor a mayor.
+ordenar [] = []
+ordenar xs =  (minimums xs) : ordenar (filtrarElemento (minimums xs) xs)
+
+
+interseccion :: Eq a => [a] -> [a] -> [a]
+--Dada dos listas devuelve otra con los elementos que ambas tengan en común.
+interseccion [] []     = []
+interseccion xs []     = []
+interseccion [] ys     = []
+interseccion (x:xs) ys = if (pertenece x ys) then x : interseccion xs ys else interseccion xs ys
+
+
+diferencia :: Eq a => [a] -> [a] -> [a]
+--Dadas dos listas devuelve una lista con los elementos de la primera menos los de la segunda.
+diferencia [] []     = []
+diferencia xs []     = xs
+diferencia [] ys     = []
+diferencia xs (y:ys) = if (pertenece y xs) then diferencia (filtrarElemento y xs) ys else y : diferencia xs ys
+
+
+positivos :: [Int] -> [Int]
+--Dada una lista de numeros retorna una lista con todos los numeros positivos
+positivos []     = []
+positivos (x:xs) = if (x>0) then x : positivos xs else positivos xs
+
+
+negativos :: [Int] -> [Int]
+--Dada una lista de numeros retorna una lista con todos los numeros negativos
+negativos []     = []
+negativos (x:xs) = if (x<0) then x : negativos xs else negativos xs
+
+
+particionPorSigno :: [Int] -> ([Int], [Int])
+{-Dada una lista xs de enteros devuelva una tupla de listas, donde la primera componente con-
+tiene todos aquellos números positivos de xs y la segunda todos aquellos números negativos
+de xs. ¿Conviene utilizar recursión? Considere utilizar funciones auxiliares.-}
+particionPorSigno xs = (positivos xs, negativos xs)
+
+
+pares :: [Int] -> [Int]
+--Dada una lista de numero retorna una lista con todos los numeros pares de la misma
+pares []     = []
+pares (x:xs) = if ((mod x 2) == 0) then x : pares xs else pares xs
+
+
+impares :: [Int] -> [Int]
+--Dada una lista de numero retorna una lista con todos los numeros impares de la misma
+impares []     = []
+impares (x:xs) = if ((mod x 2) == 1) then x : impares xs else impares xs
+
+
+particionPorParidad :: [Int] -> ([Int], [Int])
+{-Dada una lista xs de enteros devuelva una tupla de listas, donde la primera componente
+contiene todos aquellos números pares de xs y la segunda todos aquellos números impares
+de xs. ¿Conviene utilizar recursión? Considere utilizar funciones auxiliares.-}
+particionPorParidad xs = (pares xs, impares xs)
+
+
+subtails :: [a] -> [[a]]
+{-Dada una lista devuelve cada sublista resultante de aplicar tail en cada paso. Ejemplo:
+subtails "abc" == ["abc", "bc", "c",""]-}
+subtails [] = []
+subtails xs = append [xs] (subtails (tails xs))
+
+
+agrupar :: Eq a => [a] -> [[a]]
+{-Dada una lista xs devuelve una lista de listas donde cada sublista contiene elementos conti-
+guos iguales de xs. Ejemplo: agrupar "AABCCC" = ["AA","B","CC"]-}
+agrupar []     = []
+agrupar (x:xs) = if (longitud xs > 0) 
+					then if (x == heads xs)
+						 then append ([x:[heads xs]]) (agrupar (filtrarElemento x xs))
+						 else append [[x]] (agrupar xs) 
+					else agrupar xs
+
+
+esPrefijo :: Eq a => [a] -> [a] -> Bool
+--Devuelve True si la primera lista es prefijo de la segunda.
+--La primer lista no puede contener mas elementos que la segunda.
+esPrefijo [] []			= True
+esPrefijo [] ys			= True
+esPrefijo (x:xs) (y:ys) = x==y && esPrefijo xs ys
+
+
+esSufijo :: Eq a => [a] -> [a] -> Bool
+--Devuelve True si la primera lista es sufijo de la segunda.
+--La primer lista no puede contener mas elementos que la segunda.
+esSufijo xs ys = esPrefijo (reversa xs) (reversa ys)
